@@ -1,5 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Board from "./components/Board";
+import useLocalStorage from "./hooks/useLocalStorage";
+import { generateId, type ColumnData } from "./utils/helper";
 
 // ============================================================
 // INITIAL DATA
@@ -8,7 +10,7 @@ import Board from "./components/Board";
 // Each column has a unique id, a name, and an array of tasks.
 // Each task also has a unique id plus fields for all our features.
 // ============================================================
-const initialBoard = [
+const initialBoard: ColumnData[] = [
   {
     id: "col-1",
     name: "To Do",
@@ -35,111 +37,48 @@ const initialBoard = [
   },
 ];
 
-// ============================================================
-// HELPER: generateId
-// Creates a unique ID string for any new task or column.
-// crypto.randomUUID() is built into modern browsers — no library needed.
-// ============================================================
-function generateId() {
-  return crypto.randomUUID();
-}
-
-// ============================================================
-// APP COMPONENT
-// This is the root of your entire application.
-// All board data (state) lives here, and all functions that
-// change that data are defined here and passed down as props.
-// ============================================================
 export default function App() {
-
-  // ==========================================================
-  // STATE: columns
-  // "columns" is your entire board — an array of column objects.
-  // "setColumns" is the function you call to update that array.
-  //
-  // useState() sets the starting value. Here we try to load
-  // from localStorage first. If nothing is saved yet, we fall
-  // back to initialBoard above.
-  // ==========================================================
-  const [columns, setColumns] = useState(() => {
-    const saved = localStorage.getItem("kanban-board");
-    return saved ? JSON.parse(saved) : initialBoard;
-  });
-
-  // ==========================================================
-  // STATE: searchQuery
-  // Tracks whatever the user has typed into the search bar.
-  // Starts as an empty string (no search active).
-  // ==========================================================
+  const [columns, setColumns] = useLocalStorage<ColumnData[]>(
+    "kanban-board",
+    initialBoard
+  );
   const [searchQuery, setSearchQuery] = useState("");
 
-  // ==========================================================
-  // EFFECT: save to localStorage
-  // useEffect runs a side-effect whenever its dependencies change.
-  // Here: every time "columns" changes, we save it to localStorage.
-  // This is what makes the board persist across page refreshes.
-  // ==========================================================
-  useEffect(() => {
-    localStorage.setItem("kanban-board", JSON.stringify(columns));
-  }, [columns]); // <-- only re-runs when "columns" changes
-
-  // ==========================================================
-  // FUNCTION: addColumn
-  // Creates a brand new column and adds it to the end of the board.
-  // Called from AddColumnForm when the user submits a column name.
-  // ==========================================================
-  function addColumn(name) {
+  function addColumn(name: string) {
     const newColumn = {
       id: generateId(),
       name: name,
       tasks: [],
     };
-    // We never mutate state directly in React.
-    // Instead we create a NEW array with the old columns + the new one.
-    setColumns([...columns, newColumn]);
+    setColumns((currentColumns) => [...currentColumns, newColumn]);
   }
 
-  // ==========================================================
-  // FUNCTION: deleteColumn
-  // Removes a column (and all its tasks) from the board.
-  // .filter() returns a new array with every column EXCEPT the one
-  // whose id matches the one we want to delete.
-  // ==========================================================
-  function deleteColumn(columnId) {
-    setColumns(columns.filter((col) => col.id !== columnId));
+  function deleteColumn(columnId: string) {
+    setColumns((currentColumns) =>
+      currentColumns.filter((col) => col.id !== columnId)
+    );
   }
 
-  // ==========================================================
-  // FUNCTION: renameColumn
-  // Updates just the name of one specific column.
-  // .map() loops over every column and returns a new array.
-  // If the column's id matches, we return a new version of it
-  // with the updated name. Otherwise we return it unchanged.
-  // ==========================================================
-  function renameColumn(columnId, newName) {
-    setColumns(
-      columns.map((col) =>
+  function renameColumn(columnId: string, newName: string) {
+    setColumns((currentColumns) =>
+      currentColumns.map((col) =>
         col.id === columnId ? { ...col, name: newName } : col
       )
     );
   }
 
-  // ==========================================================
-  // FUNCTION: addTask
-  // Creates a new task object and adds it to the correct column.
-  // ==========================================================
-  function addTask(columnId, taskTitle) {
+  function addTask(columnId: string, taskTitle: string) {
     const newTask = {
       id: generateId(),
       title: taskTitle,
       description: "",
-      priority: "medium",  // default priority
+      priority: "medium" as const,
       dueDate: "",
       completed: false,
     };
-    setColumns(
-      columns.map((col) =>
-        // Find the right column, then add the new task to its tasks array
+
+    setColumns((currentColumns) =>
+      currentColumns.map((col) =>
         col.id === columnId
           ? { ...col, tasks: [...col.tasks, newTask] }
           : col
@@ -147,73 +86,61 @@ export default function App() {
     );
   }
 
-  // ==========================================================
-  // FUNCTION: deleteTask
-  // Removes one specific task from one specific column.
-  // ==========================================================
-  function deleteTask(columnId, taskId) {
-    setColumns(
-      columns.map((col) =>
+  function deleteTask(columnId: string, taskId: string) {
+    setColumns((currentColumns) =>
+      currentColumns.map((col) =>
         col.id === columnId
-          ? { ...col, tasks: col.tasks.filter((t) => t.id !== taskId) }
+          ? { ...col, tasks: col.tasks.filter((task) => task.id !== taskId) }
           : col
       )
     );
   }
 
-  // ==========================================================
-  // FUNCTION: moveTask
-  // Moves a task from one column to another.
-  // Steps:
-  //   1. Find the task object in the source column
-  //   2. Remove it from the source column
-  //   3. Add it to the destination column
-  // ==========================================================
-  function moveTask(taskId, fromColumnId, toColumnId) {
-    // Find the task we want to move
-    const sourceColumn = columns.find((col) => col.id === fromColumnId);
-    const taskToMove = sourceColumn.tasks.find((t) => t.id === taskId);
+  function moveTask(taskId: string, fromColumnId: string, toColumnId: string) {
+    setColumns((currentColumns) => {
+      if (fromColumnId === toColumnId) {
+        return currentColumns;
+      }
 
-    setColumns(
-      columns.map((col) => {
+      const sourceColumn = currentColumns.find((col) => col.id === fromColumnId);
+      const destinationColumn = currentColumns.find((col) => col.id === toColumnId);
+
+      if (!sourceColumn || !destinationColumn) {
+        return currentColumns;
+      }
+
+      const taskToMove = sourceColumn.tasks.find((task) => task.id === taskId);
+
+      if (!taskToMove) {
+        return currentColumns;
+      }
+
+      return currentColumns.map((col) => {
         if (col.id === fromColumnId) {
-          // Remove the task from the source column
-          return { ...col, tasks: col.tasks.filter((t) => t.id !== taskId) };
+          return { ...col, tasks: col.tasks.filter((task) => task.id !== taskId) };
         }
+
         if (col.id === toColumnId) {
-          // Add the task to the destination column
           return { ...col, tasks: [...col.tasks, taskToMove] };
         }
-        // All other columns stay the same
+
         return col;
-      })
-    );
+      });
+    });
   }
 
-  // ==========================================================
-  // FUNCTION: updateTask
-  // A general-purpose updater for any task field.
-  // Instead of separate functions for title, priority, etc.,
-  // we pass in an object with just the fields we want to change.
-  //
-  // Example call:
-  //   updateTask("col-1", "task-1", { priority: "high" })
-  //   updateTask("col-1", "task-1", { completed: true })
-  //   updateTask("col-1", "task-1", { title: "New title", dueDate: "2025-12-01" })
-  //
-  // The spread operator { ...task, ...updatedFields } means:
-  // "take all existing task fields, then overwrite with the new ones"
-  // ==========================================================
-  function updateTask(columnId, taskId, updatedFields) {
-    setColumns(
-      columns.map((col) =>
+  function updateTask(
+    columnId: string,
+    taskId: string,
+    updatedFields: Partial<ColumnData["tasks"][number]>
+  ) {
+    setColumns((currentColumns) =>
+      currentColumns.map((col) =>
         col.id === columnId
           ? {
               ...col,
               tasks: col.tasks.map((task) =>
-                task.id === taskId
-                  ? { ...task, ...updatedFields }
-                  : task
+                task.id === taskId ? { ...task, ...updatedFields } : task
               ),
             }
           : col
@@ -221,21 +148,10 @@ export default function App() {
     );
   }
 
-  // ==========================================================
-  // RENDER
-  // This is what gets displayed on screen.
-  // We import and use Board, AddColumnForm, and a search input here.
-  // Props (the stuff in the JSX tags) is how we pass data and
-  // functions DOWN to child components.
-  // ==========================================================
   return (
     <div className="min-h-screen bg-gray-100 p-6">
-
-      {/* ---- APP HEADER ---- */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-800 mb-4">My Kanban Board</h1>
-
-        {/* SEARCH BAR — controls the searchQuery state */}
         <input
           type="text"
           placeholder="Search tasks..."
@@ -254,21 +170,8 @@ export default function App() {
         onUpdateTask={updateTask}
         onDeleteColumn={deleteColumn}
         onRenameColumn={renameColumn}
+        onAddColumn={addColumn}
       />
-     
-
-      {/* ---- ADD COLUMN FORM ---- */}
-      {/*
-        Same idea — uncomment once AddColumnForm.jsx exists:
-      */}
-      {/*
-      <AddColumnForm onAddColumn={addColumn} />
-      */}
-
-      {/* TEMPORARY: just so you can see the app is working */}
-      <p className="text-gray-500 text-sm">
-        Board loaded with {columns.length} columns. Start building Board.jsx!
-      </p>
     </div>
   );
 }
