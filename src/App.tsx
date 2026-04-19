@@ -80,7 +80,7 @@ export default function App() {
           </div>
         </aside>
 
-        <section className="h-full min-w-0">
+        <section className="h-full min-h-0 min-w-0">
           <Board
             tasks={tasks}
             searchQuery={searchQuery}

@@ -49,7 +49,7 @@ export default function TaskCard({
       <article
         draggable
         onDragStart={handleDragStart}
-        className="w-full cursor-grab overflow-hidden rounded-lg bg-slate-800/95 p-3 active:cursor-grabbing"
+        className="w-full shrink-0 cursor-grab overflow-hidden rounded-lg bg-slate-800/95 p-3 active:cursor-grabbing"
       >
         <div className="flex items-start gap-3">
           <input

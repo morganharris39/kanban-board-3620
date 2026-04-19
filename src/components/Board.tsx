@@ -28,8 +28,8 @@ export default function Board({
   const highTasks = visibleTasks.filter((task) => task.priority === "high");
 
   return (
-    <div className="min-w-0 h-full">
-      <div className="grid min-w-0 h-full grid-cols-3 gap-4">
+    <div className="h-full min-h-0 min-w-0">
+      <div className="grid h-full min-h-0 min-w-0 grid-cols-3 gap-4">
         <Column
           title="Low"
           priority="low"

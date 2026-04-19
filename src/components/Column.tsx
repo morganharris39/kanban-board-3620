@@ -49,7 +49,7 @@ export default function Column({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`flex h-full min-w-0 flex-col overflow-hidden rounded-xl p-4 transition-colors ${
+      className={`flex h-full min-h-0 min-w-0 flex-col overflow-hidden rounded-xl p-4 transition-colors ${
         isDragOver
           ? "bg-slate-800/90"
           : "bg-slate-900/80"
@@ -62,7 +62,7 @@ export default function Column({
         </span>
       </div>
 
-      <div className="mt-3 flex min-w-0 flex-1 flex-col gap-2 overflow-y-auto pr-1">
+      <div className="mt-3 flex min-h-0 min-w-0 flex-1 flex-col gap-2 overflow-y-auto pr-1">
         {tasks.length === 0 ? (
           <p className="py-6 text-center text-sm text-slate-400">
             {draggingTaskId ? "Drop task here" : "No tasks"}
