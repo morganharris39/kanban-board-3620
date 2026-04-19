@@ -36,19 +36,19 @@ export default function AddTaskForm({
 
   return (
     <div className="flex min-w-0 flex-col gap-3">
-      <label className="text-sm font-medium text-gray-700">Add task</label>
+      <label className="text-sm font-medium tracking-wide text-slate-200">Add task</label>
       <input
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Task title"
-        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300"
+        className="w-full rounded-lg bg-slate-700/90 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-400/40"
       />
       <div className="flex gap-2">
         <button
           onClick={handleSubmit}
-          className="min-w-0 flex-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+          className="min-w-0 flex-1 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-violet-500"
         >
           Add to Low
         </button>
@@ -56,12 +56,12 @@ export default function AddTaskForm({
           onClick={() => {
             setTitle("");
           }}
-          className="min-w-0 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-100"
+          className="min-w-0 rounded-lg bg-slate-900/70 px-3 py-2 text-sm text-slate-300 transition-colors hover:bg-slate-800"
         >
           Clear
         </button>
       </div>
-      <p className="text-xs text-gray-500">New tasks start in the Low column.</p>
+      <p className="text-xs text-slate-400">New tasks start in the Low column.</p>
     </div>
   );
 }

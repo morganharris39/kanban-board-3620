@@ -49,22 +49,22 @@ export default function Column({
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`flex h-full min-w-0 flex-col overflow-hidden rounded-xl border p-4 shadow-sm transition-colors ${
+      className={`flex h-full min-w-0 flex-col overflow-hidden rounded-xl p-4 transition-colors ${
         isDragOver
-          ? "border-blue-300 bg-blue-50"
-          : "border-gray-200 bg-white"
+          ? "bg-slate-800/90"
+          : "bg-slate-900/80"
       }`}
     >
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-base font-semibold text-gray-800">{title}</h2>
-        <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+        <h2 className="text-base font-semibold text-slate-100">{title}</h2>
+        <span className="rounded-full bg-fuchsia-400/10 px-2 py-0.5 text-xs font-medium text-fuchsia-200">
           {tasks.length}
         </span>
       </div>
 
       <div className="mt-3 flex min-w-0 flex-1 flex-col gap-2 overflow-y-auto pr-1">
         {tasks.length === 0 ? (
-          <p className="py-6 text-center text-sm text-gray-400">
+          <p className="py-6 text-center text-sm text-slate-400">
             {draggingTaskId ? "Drop task here" : "No tasks"}
           </p>
         ) : (

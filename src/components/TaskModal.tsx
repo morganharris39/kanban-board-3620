@@ -28,22 +28,22 @@ export default function TaskModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 px-3 py-6"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 px-3 py-6 backdrop-blur-sm"
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
       tabIndex={-1}
     >
-      <div className="flex max-h-[calc(100vh-3rem)] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-white shadow-xl">
-        <div className="flex items-start justify-between p-5 border-b border-gray-100">
+      <div className="flex max-h-[calc(100vh-3rem)] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-slate-900">
+        <div className="flex items-start justify-between p-5">
           <div>
-            <p className="text-xs text-gray-400 mb-1">Notes for</p>
-            <h2 className="font-semibold text-gray-800 text-base leading-tight">
+            <p className="mb-1 text-xs text-slate-400">Notes for</p>
+            <h2 className="text-base font-semibold leading-tight text-slate-100">
               {task.title}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-300 hover:text-gray-500 text-xl leading-none ml-4 mt-0.5"
+            className="ml-4 mt-0.5 text-xl leading-none text-slate-500 hover:text-fuchsia-300"
             title="Close"
           >
             ✕
@@ -56,22 +56,22 @@ export default function TaskModal({
             autoFocus
             rows={6}
             placeholder="Write notes about this task..."
-            className="w-full text-sm text-gray-700 border border-gray-200 rounded-xl px-3 py-2.5 resize-none focus:outline-none focus:ring-2 focus:ring-blue-300"
+            className="w-full resize-none rounded-xl bg-slate-700/90 px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-400/40"
           />
-          <p className="text-xs text-gray-300 text-right mt-1">
+          <p className="mt-1 text-right text-xs text-slate-400">
             {description.length} characters
           </p>
         </div>
         <div className="flex gap-2 px-5 pb-5">
           <button
             onClick={handleSave}
-            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-xl py-2 transition-colors"
+            className="flex-1 rounded-xl bg-violet-600 py-2 text-sm font-semibold text-white transition hover:bg-violet-500"
           >
             Save notes
           </button>
           <button
             onClick={onClose}
-            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium rounded-xl py-2 transition-colors"
+            className="flex-1 rounded-xl bg-slate-800 py-2 text-sm font-medium text-slate-200 transition-colors hover:bg-slate-700"
           >
             Cancel
           </button>

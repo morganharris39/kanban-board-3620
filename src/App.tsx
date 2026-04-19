@@ -59,28 +59,28 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen overflow-hidden bg-gray-100 px-4 py-5 sm:px-6">
+    <div className="h-screen overflow-hidden bg-transparent px-4 py-5 sm:px-6">
       <div className="grid h-full gap-5 lg:grid-cols-[18rem_1fr]">
-        <aside className="h-full rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+        <aside className="h-full rounded-2xl bg-slate-900/80 p-4 backdrop-blur">
           <div className="flex flex-col gap-4">
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">Search tasks</label>
+              <label className="mb-2 block text-sm font-medium text-slate-200">Search tasks</label>
               <input
                 type="text"
                 placeholder="Search by title"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                className="w-full rounded-lg bg-slate-700/90 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-400/40"
               />
             </div>
 
-            <div className="h-px bg-gray-100" />
+            <div className="h-px bg-violet-400/30" />
 
             <AddTaskForm onAddTask={addTask} />
           </div>
         </aside>
 
-        <section className="min-w-0 h-full">
+        <section className="h-full min-w-0">
           <Board
             tasks={tasks}
             searchQuery={searchQuery}

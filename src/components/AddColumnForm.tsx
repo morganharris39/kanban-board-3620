@@ -52,7 +52,7 @@ export default function AddColumnForm({
       <div className="min-w-70 w-70">
         <button
           onClick={() => setIsOpen(true)}
-          className="h-16 w-full rounded-xl border-2 border-dashed border-gray-300 text-sm text-gray-400 transition-colors hover:border-blue-400 hover:text-blue-400"
+          className="h-16 w-full rounded-xl bg-gray-200 text-sm text-gray-500 transition-colors hover:bg-gray-300 hover:text-blue-500"
         >
           + Add column
         </button>
@@ -62,7 +62,7 @@ export default function AddColumnForm({
 
   // EXPANDED — input and action buttons, same width as a column
   return (
-    <div className="flex w-70 min-w-70 flex-col gap-3 rounded-xl bg-gray-50 p-4 shadow">
+    <div className="flex w-70 min-w-70 flex-col gap-3 rounded-xl bg-gray-50 p-4">
       <p className="text-sm font-semibold text-gray-600">New column</p>
       <input
         type="text"
@@ -71,7 +71,7 @@ export default function AddColumnForm({
         onKeyDown={handleKeyDown}
         autoFocus
         placeholder="Column name..."
-        className="w-full text-sm border border-blue-400 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
+        className="w-full rounded-lg bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300"
       />
       <div className="flex gap-2">
         <button
