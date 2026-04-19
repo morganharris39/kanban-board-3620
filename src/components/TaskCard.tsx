@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from "react";
+import { useState, type ChangeEvent, type DragEvent } from "react";
 import TaskModal from "./TaskModal";
 import type { Task, TaskPriority, TaskUpdateFields } from "../utils/helper";
 
@@ -10,20 +10,14 @@ const priorityStyles: Record<TaskPriority, string> = {
 
 export default function TaskCard({
   task,
-  columnId,
-  leftColumnId,
-  rightColumnId,
   onDelete,
-  onMove,
   onUpdate,
+  onDragStart,
 }: {
   task: Task;
-  columnId: string;
-  leftColumnId: string | null;
-  rightColumnId: string | null;
   onDelete: () => void;
-  onMove: (taskId: string, fromColumnId: string, toColumnId: string) => void;
   onUpdate: (updatedFields: TaskUpdateFields) => void;
+  onDragStart: (taskId: string) => void;
 }) {
   const [isNotesOpen, setIsNotesOpen] = useState(false);
 
@@ -44,9 +38,19 @@ export default function TaskCard({
     setIsNotesOpen(false);
   }
 
+  function handleDragStart(e: DragEvent<HTMLElement>) {
+    e.dataTransfer.setData("text/task-id", task.id);
+    e.dataTransfer.effectAllowed = "move";
+    onDragStart(task.id);
+  }
+
   return (
     <>
-      <article className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
+      <article
+        draggable
+        onDragStart={handleDragStart}
+        className="w-full cursor-grab overflow-hidden rounded-lg border border-gray-200 bg-white p-3 shadow-sm active:cursor-grabbing"
+      >
         <div className="flex items-start gap-3">
           <input
             type="checkbox"
@@ -59,7 +63,7 @@ export default function TaskCard({
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
               <h3
-                className={`text-sm font-semibold ${
+                className={`min-w-0 wrap-break-word text-sm font-semibold ${
                   task.completed ? "text-gray-400 line-through" : "text-gray-800"
                 }`}
               >
@@ -82,13 +86,13 @@ export default function TaskCard({
               </span>
             </div>
 
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              <label className="flex items-center gap-2 text-xs text-gray-500">
+            <div className="mt-3 grid grid-cols-1 gap-2">
+              <label className="flex min-w-0 flex-col gap-1 text-xs text-gray-500">
                 Priority
                 <select
                   value={task.priority}
                   onChange={handlePriorityChange}
-                  className="flex-1 rounded-md border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  className="w-full min-w-0 rounded-md border border-gray-200 bg-white px-2 py-1 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
                 >
                   <option value="low">Low</option>
                   <option value="medium">Medium</option>
@@ -96,36 +100,22 @@ export default function TaskCard({
                 </select>
               </label>
 
-              <label className="flex items-center gap-2 text-xs text-gray-500">
+              <label className="flex min-w-0 flex-col gap-1 text-xs text-gray-500">
                 Due
                 <input
                   type="date"
                   value={task.dueDate}
                   onChange={handleDueDateChange}
-                  className="flex-1 rounded-md border border-gray-200 px-2 py-1 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  className="w-full min-w-0 rounded-md border border-gray-200 px-2 py-1 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
                 />
               </label>
             </div>
 
-            <p className="mt-3 text-xs text-gray-500">
+            <p className="mt-3 wrap-break-word text-xs text-gray-500">
               {task.description ? task.description : "No notes added yet."}
             </p>
 
             <div className="mt-3 flex flex-wrap gap-2">
-              <button
-                onClick={() => leftColumnId && onMove(task.id, columnId, leftColumnId)}
-                disabled={!leftColumnId}
-                className="rounded-full border border-gray-200 px-3 py-1 text-xs text-gray-600 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Move left
-              </button>
-              <button
-                onClick={() => rightColumnId && onMove(task.id, columnId, rightColumnId)}
-                disabled={!rightColumnId}
-                className="rounded-full border border-gray-200 px-3 py-1 text-xs text-gray-600 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                Move right
-              </button>
               <button
                 onClick={() => setIsNotesOpen(true)}
                 className="rounded-full border border-blue-200 px-3 py-1 text-xs text-blue-600 hover:bg-blue-50"

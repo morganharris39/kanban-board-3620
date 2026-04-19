@@ -28,12 +28,12 @@ export default function TaskModal({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 px-3 py-6"
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
       tabIndex={-1}
     >
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 flex flex-col">
+      <div className="flex max-h-[calc(100vh-3rem)] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-white shadow-xl">
         <div className="flex items-start justify-between p-5 border-b border-gray-100">
           <div>
             <p className="text-xs text-gray-400 mb-1">Notes for</p>
@@ -49,7 +49,7 @@ export default function TaskModal({
             ✕
           </button>
         </div>
-        <div className="p-5">
+        <div className="overflow-y-auto p-5">
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}

@@ -49,10 +49,10 @@ export default function AddColumnForm({
   if (!isOpen) {
     // COLLAPSED — a card-shaped button that matches the column width
     return (
-      <div className="min-w-[280px] w-[280px]">
+      <div className="min-w-70 w-70">
         <button
           onClick={() => setIsOpen(true)}
-          className="w-full h-16 rounded-xl border-2 border-dashed border-gray-300 text-gray-400 hover:border-blue-400 hover:text-blue-400 text-sm transition-colors"
+          className="h-16 w-full rounded-xl border-2 border-dashed border-gray-300 text-sm text-gray-400 transition-colors hover:border-blue-400 hover:text-blue-400"
         >
           + Add column
         </button>
@@ -62,7 +62,7 @@ export default function AddColumnForm({
 
   // EXPANDED — input and action buttons, same width as a column
   return (
-    <div className="min-w-[280px] w-[280px] bg-gray-50 rounded-xl shadow p-4 flex flex-col gap-3">
+    <div className="flex w-70 min-w-70 flex-col gap-3 rounded-xl bg-gray-50 p-4 shadow">
       <p className="text-sm font-semibold text-gray-600">New column</p>
       <input
         type="text"
@@ -76,7 +76,7 @@ export default function AddColumnForm({
       <div className="flex gap-2">
         <button
           onClick={handleSubmit}
-          className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg py-1.5 transition-colors"
+          className="min-w-0 flex-1 rounded-lg bg-blue-500 py-1.5 text-sm text-white transition-colors hover:bg-blue-600"
         >
           Add
         </button>
@@ -85,7 +85,7 @@ export default function AddColumnForm({
             setName("");
             setIsOpen(false);
           }}
-          className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm rounded-lg py-1.5 transition-colors"
+          className="min-w-0 flex-1 rounded-lg bg-gray-100 py-1.5 text-sm text-gray-600 transition-colors hover:bg-gray-200"
         >
           Cancel
         </button>

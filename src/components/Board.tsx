@@ -1,67 +1,65 @@
 import Column from "./Column";
-import AddColumnForm from "./AddColumnForm";
-import type { ColumnData, TaskUpdateFields } from "../utils/helper";
+import type { Task, TaskPriority, TaskUpdateFields } from "../utils/helper";
 
 export default function Board({
-  columns,
+  tasks,
   searchQuery,
-  onAddTask,
   onDeleteTask,
   onMoveTask,
   onUpdateTask,
-  onDeleteColumn,
-  onRenameColumn,
-  onAddColumn,
+  draggingTaskId,
+  onTaskDragStart,
 }: {
-  columns: ColumnData[];
+  tasks: Task[];
   searchQuery: string;
-  onAddTask: (columnId: string, taskTitle: string) => void;
-  onDeleteTask: (columnId: string, taskId: string) => void;
-  onMoveTask: (taskId: string, fromColumnId: string, toColumnId: string) => void;
-  onUpdateTask: (
-    columnId: string,
-    taskId: string,
-    updatedFields: TaskUpdateFields
-  ) => void;
-  onDeleteColumn: (columnId: string) => void;
-  onRenameColumn: (columnId: string, newName: string) => void;
-  onAddColumn: (name: string) => void;
+  onDeleteTask: (taskId: string) => void;
+  onMoveTask: (taskId: string, targetPriority: TaskPriority) => void;
+  onUpdateTask: (taskId: string, updatedFields: TaskUpdateFields) => void;
+  draggingTaskId: string | null;
+  onTaskDragStart: (taskId: string) => void;
 }) {
-  const filteredColumns = columns.map((col) => ({
-    ...col,
-    tasks: col.tasks.filter((task) =>
-      task.title.toLowerCase().includes(searchQuery.toLowerCase())
-    ),
-  }));
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const visibleTasks = normalizedQuery
+    ? tasks.filter((task) => task.title.toLowerCase().includes(normalizedQuery))
+    : tasks;
 
-  function getAdjacentColumnId(currentColumnId: string, direction: "left" | "right") {
-    const index = columns.findIndex((col) => col.id === currentColumnId);
-    if (direction === "left" && index > 0) {
-      return columns[index - 1].id;
-    }
-    if (direction === "right" && index < columns.length - 1) {
-      return columns[index + 1].id;
-    }
-    return null; // no column in that direction
-  }
+  const lowTasks = visibleTasks.filter((task) => task.priority === "low");
+  const mediumTasks = visibleTasks.filter((task) => task.priority === "medium");
+  const highTasks = visibleTasks.filter((task) => task.priority === "high");
 
   return (
-    <div>
-      <div className="flex items-start gap-4 overflow-x-auto pb-4">
-        {filteredColumns.map((col) => (
-          <Column
-            key={col.id}
-            column={col}
-            getAdjacentColumnId={getAdjacentColumnId}
-            onAddTask={onAddTask}
-            onDeleteTask={onDeleteTask}
-            onMoveTask={onMoveTask}
-            onUpdateTask={onUpdateTask}
-            onDeleteColumn={onDeleteColumn}
-            onRenameColumn={onRenameColumn}
-          />
-        ))}
-        <AddColumnForm onAddColumn={onAddColumn} />
+    <div className="min-w-0 h-full">
+      <div className="grid min-w-0 h-full grid-cols-3 gap-4">
+        <Column
+          title="Low"
+          priority="low"
+          tasks={lowTasks}
+          draggingTaskId={draggingTaskId}
+          onDropTask={onMoveTask}
+          onDeleteTask={onDeleteTask}
+          onUpdateTask={onUpdateTask}
+          onTaskDragStart={onTaskDragStart}
+        />
+        <Column
+          title="Medium"
+          priority="medium"
+          tasks={mediumTasks}
+          draggingTaskId={draggingTaskId}
+          onDropTask={onMoveTask}
+          onDeleteTask={onDeleteTask}
+          onUpdateTask={onUpdateTask}
+          onTaskDragStart={onTaskDragStart}
+        />
+        <Column
+          title="High"
+          priority="high"
+          tasks={highTasks}
+          draggingTaskId={draggingTaskId}
+          onDropTask={onMoveTask}
+          onDeleteTask={onDeleteTask}
+          onUpdateTask={onUpdateTask}
+          onTaskDragStart={onTaskDragStart}
+        />
       </div>
     </div>
   );

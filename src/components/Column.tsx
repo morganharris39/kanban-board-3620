@@ -1,122 +1,84 @@
-import { useState, type KeyboardEvent } from "react";
+import { useState, type DragEvent } from "react";
 import TaskCard from "./TaskCard";
-import AddTaskForm from "./AddTaskForm";
-import type { ColumnData, TaskUpdateFields } from "../utils/helper";
+import type { Task, TaskPriority, TaskUpdateFields } from "../utils/helper";
 
 export default function Column({
-  column,
-  getAdjacentColumnId,
-  onAddTask,
+  title,
+  priority,
+  tasks,
+  draggingTaskId,
+  onDropTask,
   onDeleteTask,
-  onMoveTask,
   onUpdateTask,
-  onDeleteColumn,
-  onRenameColumn,
+  onTaskDragStart,
 }: {
-  column: ColumnData;
-  getAdjacentColumnId: (currentColumnId: string, direction: "left" | "right") => string | null;
-  onAddTask: (columnId: string, taskTitle: string) => void;
-  onDeleteTask: (columnId: string, taskId: string) => void;
-  onMoveTask: (taskId: string, fromColumnId: string, toColumnId: string) => void;
-  onUpdateTask: (
-    columnId: string,
-    taskId: string,
-    updatedFields: TaskUpdateFields
-  ) => void;
-  onDeleteColumn: (columnId: string) => void;
-  onRenameColumn: (columnId: string, newName: string) => void;
+  title: string;
+  priority: TaskPriority;
+  tasks: Task[];
+  draggingTaskId: string | null;
+  onDropTask: (taskId: string, targetPriority: TaskPriority) => void;
+  onDeleteTask: (taskId: string) => void;
+  onUpdateTask: (taskId: string, updatedFields: TaskUpdateFields) => void;
+  onTaskDragStart: (taskId: string) => void;
 }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedName, setEditedName] = useState(column.name);
+  const [isDragOver, setIsDragOver] = useState(false);
 
-  function handleRenameSubmit() {
-    const trimmed = editedName.trim();
-    if (trimmed === "") {
-      setEditedName(column.name);
-    } else {
-      onRenameColumn(column.id, trimmed);
-    }
-    setIsEditing(false);
+  function handleDragOver(e: DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setIsDragOver(true);
   }
 
-  function handleRenameKeyDown(e: KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter") {
-      handleRenameSubmit();
-    }
-    if (e.key === "Escape") {
-      setEditedName(column.name);
-      setIsEditing(false);
-    }
+  function handleDragLeave() {
+    setIsDragOver(false);
   }
 
-  function handleDeleteColumn() {
-    const confirmed = window.confirm(
-      `Delete the "${column.name}" column and all its tasks?`
-    );
-    if (confirmed) {
-      onDeleteColumn(column.id);
+  function handleDrop(e: DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    const droppedTaskId = e.dataTransfer.getData("text/task-id");
+
+    if (droppedTaskId) {
+      onDropTask(droppedTaskId, priority);
     }
+
+    setIsDragOver(false);
   }
 
   return (
-    <div className="bg-gray-50 rounded-xl shadow p-4 min-w-[280px] w-[280px] flex flex-col gap-3">
+    <div
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      className={`flex h-full min-w-0 flex-col overflow-hidden rounded-xl border p-4 shadow-sm transition-colors ${
+        isDragOver
+          ? "border-blue-300 bg-blue-50"
+          : "border-gray-200 bg-white"
+      }`}
+    >
       <div className="flex items-center justify-between gap-2">
-
-        {isEditing ? (
-          <input
-            type="text"
-            value={editedName}
-            onChange={(e) => setEditedName(e.target.value)}
-            onBlur={handleRenameSubmit}
-            onKeyDown={handleRenameKeyDown}
-            autoFocus
-            className="flex-1 px-2 py-1 text-sm font-semibold border border-blue-400 rounded focus:outline-none"
-          />
-        ) : (
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <h2
-              className="font-semibold text-gray-700 truncate cursor-pointer hover:text-blue-500"
-              onClick={() => setIsEditing(true)}
-              title="Click to rename"
-            >
-              {column.name}
-            </h2>
-
-            <span className="bg-gray-200 text-gray-600 text-xs font-medium px-2 py-0.5 rounded-full">
-              {column.tasks.length}
-            </span>
-          </div>
-        )}
-
-        <button
-          onClick={handleDeleteColumn}
-          className="text-gray-300 hover:text-red-400 text-lg leading-none flex-shrink-0"
-          title="Delete column"
-        >
-          ✕
-        </button>
+        <h2 className="text-base font-semibold text-gray-800">{title}</h2>
+        <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+          {tasks.length}
+        </span>
       </div>
 
-      <div className="flex flex-col gap-2">
-        {column.tasks.length === 0 ? (
-          <p className="text-gray-300 text-sm text-center py-4">No tasks yet</p>
+      <div className="mt-3 flex min-w-0 flex-1 flex-col gap-2 overflow-y-auto pr-1">
+        {tasks.length === 0 ? (
+          <p className="py-6 text-center text-sm text-gray-400">
+            {draggingTaskId ? "Drop task here" : "No tasks"}
+          </p>
         ) : (
-          column.tasks.map((task) => (
+          tasks.map((task) => (
             <TaskCard
               key={task.id}
               task={task}
-              columnId={column.id}
-              leftColumnId={getAdjacentColumnId(column.id, "left")}
-              rightColumnId={getAdjacentColumnId(column.id, "right")}
-              onDelete={() => onDeleteTask(column.id, task.id)}
-              onMove={onMoveTask}
-              onUpdate={(updatedFields) => onUpdateTask(column.id, task.id, updatedFields)}
+              onDelete={() => onDeleteTask(task.id)}
+              onUpdate={(updatedFields) => onUpdateTask(task.id, updatedFields)}
+              onDragStart={onTaskDragStart}
             />
           ))
         )}
       </div>
-
-      <AddTaskForm onAddTask={(title: string) => onAddTask(column.id, title)} />
     </div>
   );
 }
